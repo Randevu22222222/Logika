@@ -1,0 +1,285 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Utility Flask App</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f2f2f2;
+            color: #fff;
+            margin: 0;
+            padding: 0;
+        }
+        .container {
+            max-width: 800px;
+            margin: 30px auto;
+            padding: 20px;
+            background-color: #5e2a84;
+            border-radius: 12px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+        }
+        h1 {
+            text-align: center;
+            color: #fff;
+            margin-bottom: 20px;
+            font-size: 2.5rem;
+        }
+        .section {
+            margin-bottom: 30px;
+            padding: 15px;
+            border-radius: 8px;
+            background-color: #6f3a96;
+        }
+        .input-group {
+            margin-bottom: 20px;
+        }
+        label {
+            display: block;
+            color: #fff;
+            font-size: 1rem;
+            margin-bottom: 8px;
+        }
+        input, select, button {
+            padding: 12px;
+            width: 100%;
+            margin-top: 8px;
+            border-radius: 6px;
+            border: 1px solid #9c4d98;
+            font-size: 1rem;
+            color: #333;
+        }
+        input:focus, select:focus, button:focus {
+            outline: none;
+            border-color: #8e3ca2;
+        }
+        button {
+            background-color: #8e3ca2;
+            color: #fff;
+            cursor: pointer;
+            font-weight: bold;
+        }
+        button:hover {
+            background-color: #9b4da2;
+        }
+        .result {
+            margin-top: 15px;
+            padding: 12px;
+            background-color: #d6aadf;
+            border-radius: 8px;
+            font-size: 1.2rem;
+            color: #333;
+            text-align: center;
+        }
+        .result.error {
+            background-color: #f99;
+        }
+        .result.success {
+            background-color: #a7f7a7;
+        }
+        footer {
+            text-align: center;
+            margin-top: 40px;
+            color: #fff;
+            font-size: 0.9rem;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <h1>Utility Flask App</h1>
+
+        <!-- Password Generator -->
+        <div class="section">
+            <h2>Генерация пароля</h2>
+            <div class="input-group">
+                <label for="password-length">Длина пароля:</label>
+                <input type="number" id="password-length" value="12" min="1">
+            </div>
+            <div class="input-group">
+                <label for="password-uppercase">Использовать заглавные буквы:</label>
+                <input type="checkbox" id="password-uppercase">
+            </div>
+            <div class="input-group">
+                <label for="password-digits">Использовать цифры:</label>
+                <input type="checkbox" id="password-digits">
+            </div>
+            <div class="input-group">
+                <label for="password-special">Использовать специальные символы:</label>
+                <input type="checkbox" id="password-special">
+            </div>
+            <button onclick="generatePassword()">Сгенерировать пароль</button>
+            <div id="password-result" class="result"></div>
+        </div>
+
+        <!-- Prime Factors -->
+        <div class="section">
+            <h2>Разложение на простые множители</h2>
+            <div class="input-group">
+                <label for="factor-number">Число:</label>
+                <input type="number" id="factor-number">
+            </div>
+            <button onclick="calculatePrimeFactors()">Найти множители</button>
+            <div id="factors-result" class="result"></div>
+        </div>
+
+        <!-- Fibonacci Sequence -->
+        <div class="section">
+            <h2>Последовательность Фибоначчи</h2>
+            <div class="input-group">
+                <label for="fibonacci-n">Количество элементов:</label>
+                <input type="number" id="fibonacci-n" value="10" min="1">
+            </div>
+            <button onclick="generateFibonacci()">Получить последовательность</button>
+            <div id="fibonacci-result" class="result"></div>
+        </div>
+
+        <!-- Temperature Conversion -->
+        <div class="section">
+            <h2>Конвертация температуры</h2>
+            <div class="input-group">
+                <label for="temperature-value">Температура:</label>
+                <input type="number" id="temperature-value" value="32">
+            </div>
+            <div class="input-group">
+                <label for="temperature-unit">Конвертировать в:</label>
+                <select id="temperature-unit">
+                    <option value="Celsius">Цельсий</option>
+                    <option value="Fahrenheit">Фаренгейт</option>
+                </select>
+            </div>
+            <button onclick="convertTemperature()">Конвертировать</button>
+            <div id="temperature-result" class="result"></div>
+        </div>
+
+        <!-- Random String Generator -->
+        <div class="section">
+            <h2>Генерация случайной строки</h2>
+            <div class="input-group">
+                <label for="random-string-length">Длина строки:</label>
+                <input type="number" id="random-string-length" value="8" min="1">
+            </div>
+            <button onclick="generateRandomString()">Сгенерировать строку</button>
+            <div id="random-string-result" class="result"></div>
+        </div>
+
+        <!-- Random Quote -->
+        <div class="section">
+            <h2>Случайная цитата</h2>
+            <button onclick="getRandomQuote()">Получить цитату</button>
+            <div id="quote-result" class="result"></div>
+        </div>
+
+    </div>
+
+    <footer>
+        <p>2024 © Utility Flask App</p>
+    </footer>
+
+    <script>
+        function generatePassword() {
+            const length = document.getElementById('password-length').value;
+            const uppercase = document.getElementById('password-uppercase').checked;
+            const digits = document.getElementById('password-digits').checked;
+            const special = document.getElementById('password-special').checked;
+
+            fetch('/generate-password', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    length: length,
+                    uppercase: uppercase,
+                    digits: digits,
+                    special: special
+                })
+            })
+            .then(response => response.json())
+            .then(data => {
+                document.getElementById('password-result').innerText = 'Сгенерированный пароль: ' + data.password;
+            });
+        }
+
+        function calculatePrimeFactors() {
+            const number = document.getElementById('factor-number').value;
+
+            fetch('/prime-factors', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ number: parseInt(number) })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.factors) {
+                    document.getElementById('factors-result').innerText = 'Простые множители: ' + data.factors.join(', ');
+                } else {
+                    document.getElementById('factors-result').innerText = 'Ошибка: ' + data.error;
+                }
+            });
+        }
+
+        function generateFibonacci() {
+            const n = document.getElementById('fibonacci-n').value;
+
+            fetch('/fibonacci', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ n: parseInt(n) })
+            })
+            .then(response => response.json())
+            .then(data => {
+                document.getElementById('fibonacci-result').innerText = 'Последовательность: ' + data.fibonacci.join(', ');
+            });
+        }
+
+        function convertTemperature() {
+            const value = document.getElementById('temperature-value').value;
+            const unit = document.getElementById('temperature-unit').value;
+
+            fetch('/convert-temperature', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ value: parseFloat(value), to_unit: unit })
+            })
+            .then(response => response.json())
+            .then(data => {
+                document.getElementById('temperature-result').innerText = 'Конвертированная температура: ' + data.converted_temperature;
+            });
+        }
+
+        function generateRandomString() {
+            const length = document.getElementById('random-string-length').value;
+
+            fetch('/random-string', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ length: parseInt(length) })
+            })
+            .then(response => response.json())
+            .then(data => {
+                document.getElementById('random-string-result').innerText = 'Случайная строка: ' + data.random_string;
+            });
+        }
+
+        function getRandomQuote() {
+            fetch('/random-quote')
+            .then(response => response.json())
+            .then(data => {
+                document.getElementById('quote-result').innerText = 'Цитата: ' + data.quote;
+            });
+        }
+    </script>
+
+</body>
+</html>
